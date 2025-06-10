@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2025 Saddik Khaddamellah
+// Met dank aan Erik Slingerland voor begeleiding.
+
 // Importeer de benodigde functies uit het 'berekeningen' bestand.
 // Deze functies doen de echte berekeningen voor elke fase.
 import {

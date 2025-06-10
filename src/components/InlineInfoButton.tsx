@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2025 Saddik Khaddamellah
+// Met dank aan Erik Slingerland voor begeleiding.
 import React from 'react';
 
 // Props-type voor de InlineInfoButton: verwacht een tekst

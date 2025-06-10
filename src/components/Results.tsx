@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2025 Saddik Khaddamellah
+// Met dank aan Erik Slingerland voor begeleiding.
 import React, { useState } from 'react';
 import { Download, Info, Printer } from 'lucide-react';
 import html2pdf from 'html2pdf.js';

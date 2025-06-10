@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2025 Saddik Khaddamellah
+// Met dank aan Erik Slingerland voor begeleiding.
+
 // Type voor de trainingsfase
 export type ModelKeuze = 'preloaded' | 'finetuned' | 'custom';
 
