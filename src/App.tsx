@@ -14,8 +14,10 @@ import HULogo from './Logos/HU-logo.png';
 import HCAIMLogo from './Logos/HCAIM_Logo.png';
 
 function App() {
+  // Houdt bij welke tab momenteel actief is
   const [activeTab, setActiveTab] = useState<FormSection>('intro');
 
+  // Centrale state voor alle formulierdata per fase
   const [formData, setFormData] = useState<FormData>({
     training: {},
     inference: { locatie: 'cloud' },
@@ -24,13 +26,15 @@ function App() {
     hosting: {}
   });
 
+  // Houdt bij welke tabs (stappen) zijn afgerond
   const [completedTabs, setCompletedTabs] = useState<FormSection[]>([]);
 
+  // Markeer een tab als afgerond (voeg toe aan completedTabs)
   const markTabAsComplete = (tab: FormSection) => {
     setCompletedTabs((prev) => (prev.includes(tab) ? prev : [...prev, tab]));
   };
 
-  // 🔁 Automatische berekening van jaarlijkse bezoeken (annualVisits)
+  // Automatische berekening van jaarlijkse bezoeken (annualVisits) op basis van gebruikers en sessies
   useEffect(() => {
     const aantal = parseFloat(formData.devices?.totaalAantalGebruikers || '0');
     const sessies = parseFloat(formData.devices?.sessiesPerJaar || '0');
@@ -47,6 +51,7 @@ function App() {
     }
   }, [formData.devices?.totaalAantalGebruikers, formData.devices?.sessiesPerJaar]);
 
+  // Hulpfunctie om formulierdata per sectie bij te werken
   const updateFormData = <T extends keyof FormData>(section: T, data: Partial<FormData[T]>) => {
     setFormData((prev) => ({
       ...prev,
@@ -60,6 +65,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Header met logo's en titel */}
         <header className="mb-12">
           <div className="grid gap-4 md:grid-cols-3 items-center">
             {/* Links logo */}
@@ -84,8 +90,10 @@ function App() {
           </div>
         </header>
 
+        {/* Hoofdcontent: tabs met stappen */}
         <div className="bg-white rounded-xl shadow-xl p-6">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as FormSection)}>
+            {/* Navigatiebalk met alle stappen */}
             <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-4 mb-8">
               <TabsTrigger
                 value="intro"
@@ -152,6 +160,7 @@ function App() {
               </TabsTrigger>
             </TabsList>
 
+            {/* Introductiepagina */}
             <TabsContent value="intro" currentValue={activeTab}>
               <IntroPage onStart={() => {
                 markTabAsComplete('intro');
@@ -159,6 +168,7 @@ function App() {
               }} />
             </TabsContent>
 
+            {/* Trainingsfase */}
             <TabsContent value="training" currentValue={activeTab}>
               <TrainingPhase
                 data={formData.training}
@@ -171,6 +181,7 @@ function App() {
               />
             </TabsContent>
 
+            {/* Inferentiefase */}
             <TabsContent value="inference" currentValue={activeTab}>
               <InferencePhase
                 data={formData.inference}
@@ -183,6 +194,7 @@ function App() {
               />
             </TabsContent>
 
+            {/* Eindgebruikersapparaten */}
             <TabsContent value="devices" currentValue={activeTab}>
               <EndUserDevices
                 data={formData.devices}
@@ -195,18 +207,25 @@ function App() {
               />
             </TabsContent>
 
+            {/* Webhosting */}
             <TabsContent value="hosting" currentValue={activeTab}>
               <WebHosting
                 data={formData.hosting}
                 onUpdate={(data) => updateFormData('hosting', data)}
-                onNext={() => {
+                onNext={(isOnline) => {
                   markTabAsComplete('hosting');
-                  setActiveTab('network');
+                  // Als niet online, sla netwerkstap over
+                  if (isOnline === false) {
+                    setActiveTab('results');
+                  } else {
+                    setActiveTab('network');
+                  }
                 }}
                 onBack={() => setActiveTab('devices')}
               />
             </TabsContent>
 
+            {/* Netwerkgebruik */}
             <TabsContent value="network" currentValue={activeTab}>
               <NetworkUsage
                 data={formData.network}
@@ -219,6 +238,7 @@ function App() {
               />
             </TabsContent>
 
+            {/* Resultatenpagina */}
             <TabsContent value="results" currentValue={activeTab}>
               <Results
                 formData={formData}

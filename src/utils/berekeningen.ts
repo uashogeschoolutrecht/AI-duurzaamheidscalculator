@@ -249,10 +249,11 @@ export function berekenHostingUitstoot(
   }
 
   // Bepaal de CO2-uitstoot in gram per bezoek.
-  // Als PUE en carbonIntensity bekend zijn, bereken het dynamisch. Anders gebruik een standaardwaarde.
-  // 1 Wh per bezoek wordt omgerekend naar 0.001 kWh.
+  // Als PUE en carbonIntensity bekend zijn, bereken het dynamisch.
+  // Anders gebruik een standaardwaarde.
+  // 1,66 Wh per bezoek wordt omgerekend naar 0.00166 kWh.
   const gramCO2PerBezoek = (pue && carbonIntensity)
-    ? 0.001 * pue * carbonIntensity
+    ? 0.00166 * pue * carbonIntensity
     : 0.8; // Standaardwaarde van 0.8 gram CO2 per bezoek. Gebaseerd op het wereldwijde gemiddelde van 0.8 gCO2 per bezoek (bron: https://www.websitecarbon.com/).
 
   // Bereken de totale operationele uitstoot en zet het om naar kilogram.

@@ -4,16 +4,21 @@ interface IntroPageProps {
   onStart: () => void;
 }
 
+// IntroPage toont de introductie, uitleg en methodologie van de tool.
+// De gebruiker kan hierna starten met de berekening.
 const IntroPage: React.FC<IntroPageProps> = ({ onStart }) => {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 text-gray-800">
+      {/* Titel */}
       <h1 className="text-3xl font-bold mb-4">Welkom!</h1>
+      {/* Korte uitleg over de tool */}
       <p className="mb-4">
         Deze tool berekent de geschatte CO₂-uitstoot van een gemeentelijke AI-toepassing op basis van vijf fasen:
         training, inferentie (gebruik), eindgebruikersapparaten, netwerkverkeer en hosting. De gebruikte berekeningen zijn
         gebaseerd op aannames uit wetenschappelijke literatuur.
       </p>
 
+      {/* Methodologie uitleg */}
       <h2 className="text-xl font-semibold mt-6 mb-2">Methodologie</h2>
       <p className="mb-4 whitespace-pre-line">
         <strong>1. Training van het AI-model</strong>
@@ -32,10 +37,12 @@ const IntroPage: React.FC<IntroPageProps> = ({ onStart }) => {
         {"\n"}De CO₂-uitstoot van webhosting wordt berekend op basis van een standaardwaarde van 0,8 g CO₂ per bezoek (bron: websitecarbon.com), en — bij cloudhosting — ook op basis van embedded serveruitstoot van 2.500.000 g CO₂ over 6 jaar (waarvan 40% wordt meegeteld).
       </p>
 
+      {/* Bronnen */}
       <p className="mt-6 text-sm text-gray-600">
         Wetenschappelijke bronnen: Luccioni et al. (2022), Malmodin & Lundén (2018), Berthelot et al. (2024), IEA (2023), Farfan & Lohrmann (2023)
       </p>
 
+      {/* Startknop */}
       <div className="mt-8 text-center">
         <button
           onClick={onStart}
@@ -45,6 +52,7 @@ const IntroPage: React.FC<IntroPageProps> = ({ onStart }) => {
         </button>
       </div>
 
+      {/* Footer met auteur */}
       <p className="mt-6 text-xs text-gray-500 text-center">
         Ontwikkeld door Saddik Khaddamellah – 2025 · saddik.khaddamellah@student.hu.nl
       </p>

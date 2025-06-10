@@ -1,9 +1,9 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
-import InfoButton from './InfoButton';
 import { berekenCo2Apparaatgebruik } from '../utils/berekeningen';
 import { EndUserDevicesProps } from '../types';
 
+// Specificaties van de ondersteunde apparaten
 const apparatenSpecs = {
   smartphone: { label: 'Smartphone', vermogenWatt: 1, embeddedCo2Kg: 86.6, levensduurJaar: 3 },
   laptop: { label: 'Laptop', vermogenWatt: 75, embeddedCo2Kg: 522.6, levensduurJaar: 4 }
@@ -12,10 +12,12 @@ const apparatenSpecs = {
 };
 
 const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext, onBack }) => {
+  // Wijzigt een veld in de data en roept onUpdate aan
   const wijzigVeld = (veld: string, waarde: string) => {
     onUpdate({ ...data, [veld]: waarde });
   };
 
+  // Past het percentage laptops aan, smartphones wordt automatisch aangevuld tot 100%
   const wijzigLaptopPercentage = (waarde: number) => {
     const laptop = waarde;
     const smartphone = 100 - laptop;
@@ -29,6 +31,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
     });
   };
 
+  // Berekent de totale embedded uitstoot voor alle apparaten
   const totaalEmbedded = Object.entries(apparatenSpecs).reduce((acc, [type, info]) => {
     const percentage = parseFloat(data.percentages?.[type] || '0');
     const aantalGebruikers = parseFloat(data.totaalAantalGebruikers || '0') * (percentage / 100);
@@ -42,6 +45,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
     return acc + berekening.embeddedKg;
   }, 0);
 
+  // Berekent de totale operationele uitstoot voor alle apparaten
   const totaalOperationeel = Object.entries(apparatenSpecs).reduce((acc, [type, info]) => {
     const percentage = parseFloat(data.percentages?.[type] || '0');
     const aantalGebruikers = parseFloat(data.totaalAantalGebruikers || '0') * (percentage / 100);
@@ -55,6 +59,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
     return acc + berekening.operationeelKg;
   }, 0);
 
+  // Wordt aangeroepen bij 'Volgende', update apparaten-data en gaat naar de volgende stap
   const handleNext = () => {
     const apparatenData: any = {};
     Object.entries(apparatenSpecs).forEach(([type, info]) => {
@@ -84,6 +89,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
         Energie- en materiaalgebruik van eindgebruikersapparaten
       </h2>
 
+      {/* Invoer: totaal aantal gebruikers */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Aantal gebruikers per jaar (totaal)
@@ -97,6 +103,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
         />
       </div>
 
+      {/* Invoer: sessieduur */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Duur per sessie (minuten)
@@ -110,6 +117,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
         />
       </div>
 
+      {/* Invoer: aantal sessies per gebruiker */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Aantal sessies per gebruiker per jaar
@@ -123,11 +131,12 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
         />
       </div>
 
-      {/* Verdeling laptop (slicer) */}
+      {/* Slider voor verdeling tussen laptop en smartphone */}
       <div className="border rounded-lg p-4 bg-gray-50">
         <h3 className="text-lg font-medium mb-4">Verdeling gebruikers per apparaat</h3>
 
         <div className="space-y-6">
+          {/* Laptop slider */}
           <div>
             <div className="flex justify-between items-center mb-1">
               <span className="font-medium text-gray-800">Laptop</span>
@@ -149,6 +158,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
             </p>
           </div>
 
+          {/* Smartphone percentage wordt automatisch berekend */}
           <div>
             <div className="flex justify-between items-center mb-1">
               <span className="font-medium text-gray-800">Smartphone</span>
@@ -166,7 +176,7 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
         </div>
       </div>
 
-      {/* Uitstootresultaten */}
+      {/* Resultaten per apparaattype */}
       <div className="space-y-4">
         {Object.entries(apparatenSpecs).map(([type, info]) => {
           const percentage = parseFloat(data.percentages?.[type] || '0');
@@ -202,13 +212,14 @@ const EndUserDevices: React.FC<EndUserDevicesProps> = ({ data, onUpdate, onNext,
         })}
       </div>
 
-      {/* Totaal samenvatting */}
+      {/* Samenvatting van de totale uitstoot */}
       <div className="mt-8 p-4 bg-green-50 rounded-lg text-green-800 text-sm">
         <p><strong>Totale embedded uitstoot:</strong> {totaalEmbedded.toFixed(2)} kg CO₂e/jaar</p>
         <p><strong>Totale operationele uitstoot:</strong> {totaalOperationeel.toFixed(2)} kg CO₂e/jaar</p>
         <p><strong>Totaal uitstoot apparaten:</strong> {(totaalEmbedded + totaalOperationeel).toFixed(2)} kg CO₂e/jaar</p>
       </div>
 
+      {/* Navigatieknoppen */}
       <div className="flex justify-between items-center mt-8">
         <button
           onClick={onBack}

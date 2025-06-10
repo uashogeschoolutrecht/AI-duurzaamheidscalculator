@@ -1,35 +1,41 @@
 import React from 'react';
 
+// Props voor het Tabs-component: huidige waarde, handler voor waarde-wijziging en children
 interface TabsProps {
   value: string;
   onValueChange: (value: string) => void;
   children: React.ReactNode;
 }
 
+// Props voor de lijst van tab-triggers
 interface TabsListProps {
   children: React.ReactNode;
   className?: string;
 }
 
+// Props voor een enkele tab-trigger (tab-knop)
 interface TabsTriggerProps {
   value: string;
   currentValue: string;
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
-  completed?: boolean; // ✅ toegevoegd
+  completed?: boolean; // geeft aan of deze stap afgerond is
 }
 
+// Props voor de content van een tab
 interface TabsContentProps {
   value: string;
   currentValue: string;
   children: React.ReactNode;
 }
 
+// Tabs-component: beheert welke tab actief is en geeft children door met extra props
 export const Tabs: React.FC<TabsProps> = ({ value, onValueChange, children }) => {
   return (
     <div className="w-full">
       {React.Children.map(children, (child) => {
+        // Alleen children met een 'value'-prop worden als tab herkend
         if (
           React.isValidElement(child) &&
           typeof child.props.value === 'string'
@@ -38,6 +44,7 @@ export const Tabs: React.FC<TabsProps> = ({ value, onValueChange, children }) =>
             TabsTriggerProps | TabsContentProps
           >;
 
+          // Geeft currentValue en onClick door aan elk child
           return React.cloneElement(childWithProps, {
             currentValue: value,
             onClick: () => onValueChange(childWithProps.props.value),
@@ -49,10 +56,12 @@ export const Tabs: React.FC<TabsProps> = ({ value, onValueChange, children }) =>
   );
 };
 
+// TabsList: container voor de tab-triggers (knoppen)
 export const TabsList: React.FC<TabsListProps> = ({ children, className }) => {
   return <div className={className}>{children}</div>;
 };
 
+// TabsTrigger: een enkele tab-knop, met styling voor actief/completed/default
 export const TabsTrigger: React.FC<TabsTriggerProps> = ({
   value,
   currentValue,
@@ -80,6 +89,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
   );
 };
 
+// TabsContent: toont alleen de content als deze tab actief is
 export const TabsContent: React.FC<TabsContentProps> = ({
   value,
   currentValue,

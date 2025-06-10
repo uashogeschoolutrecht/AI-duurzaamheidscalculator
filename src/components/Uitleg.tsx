@@ -1,5 +1,6 @@
 import React from 'react';
 
+// Props-type voor de uitlegcomponent: verwacht formData en resultaten
 interface ExplanationProps {
   formData: any;
   results: {
@@ -13,6 +14,7 @@ interface ExplanationProps {
   };
 }
 
+// Specificaties van ondersteunde apparaten voor berekening
 const deviceInfo: any = {
   smartphone: { power: 1, embeddedCO2: 86.6, lifetime: 3 },
   laptop: { power: 75, embeddedCO2: 522.6, lifetime: 4 },
@@ -20,16 +22,20 @@ const deviceInfo: any = {
   tablet: { power: 7.5, embeddedCO2: 110.1, lifetime: 4 },
 };
 
+// Uitleg toont een toelichting op de berekende CO₂-uitstoot per fase
 const Uitleg: React.FC<ExplanationProps> = ({ formData, results }) => {
   const { training, inference, devices, network, hosting } = formData;
   const { totaalKg, perFase, perFaseDetails } = results;
 
+  // Haal aantal inferenties per jaar en hoeveelheid data op
   const infPerYear = parseFloat(inference?.inferencesPerYear || 0);
   const dataAmount = parseFloat(network?.dataHoeveelheid || 0);
 
+  // Bepaal de eenheid van data (KB, MB, GB)
   const rawUnit = (network?.dataEenheid || 'MB').toUpperCase();
   const dataUnit = ['KB', 'MB', 'GB'].includes(rawUnit) ? rawUnit : 'MB';
 
+  // Zet hoeveelheid data om naar GB
   const gbData =
     dataUnit === 'GB'
       ? dataAmount
@@ -39,8 +45,10 @@ const Uitleg: React.FC<ExplanationProps> = ({ formData, results }) => {
       ? dataAmount / 1_000_000
       : 0;
 
+  // Bereken energieverbruik door netwerkverkeer
   const netEnergy = gbData * 0.27 * infPerYear;
 
+  // Haal aantal bezoeken en bereken server productie-uitstoot
   const visits = parseFloat(hosting?.annualVisits || 0);
   const lifetimeVisits = visits * 6;
   const serverProdCO2 =
@@ -48,6 +56,7 @@ const Uitleg: React.FC<ExplanationProps> = ({ formData, results }) => {
       ? ((2500000 / lifetimeVisits) * visits) / 1000
       : 0;
 
+  // Genereer uitleg per apparaattype
   const deviceDetails = devices?.apparaten
     ? (() => {
         const regels = Object.entries(devices.apparaten)
@@ -58,7 +67,9 @@ const Uitleg: React.FC<ExplanationProps> = ({ formData, results }) => {
             if (!info || count <= 0 || duration <= 0) return null;
 
             const hours = duration / 60;
+            // Embedded uitstoot geschaald naar gebruiksduur
             const embedded = ((info.embeddedCO2 / info.lifetime) * (duration / 480)) * count;
+            // Operationele uitstoot op basis van vermogen, duur en CO₂-intensiteit
             const operational = (count * info.power * hours * 268) / 1000;
 
             return `${count} ${type}(s) werden gemiddeld ${duration} minuten per sessie gebruikt, wat leidde tot ~${Math.round(
@@ -71,6 +82,7 @@ const Uitleg: React.FC<ExplanationProps> = ({ formData, results }) => {
       })()
     : 'Geen apparaatgegevens beschikbaar.';
 
+  // Totale uitstoot inferentie (operationeel + embedded GPU + embedded server)
   const totaleInferentieUitstoot =
     (perFaseDetails.inferenceOperationeel || 0) +
     (perFaseDetails.inferenceEmbeddedGpu || 0) +

@@ -8,6 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from 'recharts';
 
+// Bepaalt het energielabel op basis van de totale CO₂-uitstoot
 const determineEnergyLabel = (co2: number): string => {
   if (co2 <= 10000) return 'A';
   if (co2 <= 20000) return 'B';
@@ -18,6 +19,7 @@ const determineEnergyLabel = (co2: number): string => {
   return 'G';
 };
 
+// Geeft de juiste kleur voor het energielabel
 const getLabelColor = (label: string) => {
   switch (label) {
     case 'A': return 'bg-green-500';
@@ -31,9 +33,11 @@ const getLabelColor = (label: string) => {
   }
 };
 
-const kleuren = ['#16a34a', '#2563eb', '#facc15', '#f97316', '#9ca3af', '#6366f1', '#ef4444'];
+// Kleuren voor de fasen in de grafiek (geen grijs)
+const kleuren = ['#16a34a', '#2563eb', '#facc15', '#f97316', '#a21caf', '#6366f1', '#ef4444'];
 const getColor = (index: number) => kleuren[index % kleuren.length];
 
+// Uitleg per fase voor de tooltip
 const phaseExplanations = (inferencesPerYear: number): { [key: string]: string } => ({
   training: `De uitstoot van de trainingsfase is proportioneel toegekend op basis van het gemeentelijke gebruik van ${inferencesPerYear.toLocaleString()} inferenties per jaar, vergeleken met een geschat wereldwijd gebruik van 365 miljard inferenties.`,
   inference: 'De uitstoot bij inferentie omvat operationeel verbruik en productie van de gebruikte GPU.',
@@ -42,11 +46,14 @@ const phaseExplanations = (inferencesPerYear: number): { [key: string]: string }
   hosting: 'Bij hosting is ook de productie-uitstoot van servers meegerekend over hun levensduur.'
 });
 
+// Resultatenpagina: toont samenvatting, grafieken en downloadopties
 const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
   const [visibleInfo, setVisibleInfo] = useState<string | null>(null);
+  // Bereken de totale uitstoot en uitsplitsing per fase
   const { totaalKg, perFase, perFaseDetails, inferencesPerYear } = berekenTotaleUitstoot(formData);
   const label = determineEnergyLabel(totaalKg);
 
+  // Download resultaten als JSON-bestand
   const downloadResults = () => {
     const results = { totaalKg, perFase };
     const data = JSON.stringify({ formData, results }, null, 2);
@@ -61,6 +68,7 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
     URL.revokeObjectURL(url);
   };
 
+  // Download resultaten als PDF-bestand
   const downloadPDF = () => {
     const element = document.getElementById('rapport-content');
     if (!element) return;
@@ -81,12 +89,14 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
       <div id="rapport-content" className="max-w-4xl mx-auto space-y-8">
         <h2 className="text-2xl font-semibold text-gray-900">Resultaten van duurzaamheidsanalyse</h2>
 
+        {/* Totaaloverzicht */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h3 className="text-lg font-medium mb-4">Totale jaarlijkse CO₂-uitstoot</h3>
           <p className="text-2xl font-bold text-green-600">
             {totaalKg.toLocaleString(undefined, { maximumFractionDigits: 0 })} kg CO₂e
           </p>
 
+          {/* Energielabel */}
           <div className="mt-4">
             <h4 className="text-sm font-medium text-gray-700 mb-1">Energielabel (indicatief)</h4>
             <div className="flex items-center space-x-1">
@@ -105,6 +115,7 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
           </div>
         </div>
 
+        {/* Vergelijkingen */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h3 className="text-lg font-medium mb-4">Vergelijkbaar met de uitstoot van</h3>
           <div className="space-y-2 text-sm text-gray-600">
@@ -114,9 +125,11 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
           </div>
         </div>
 
+        {/* Uitsplitsing per fase */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h3 className="text-lg font-medium mb-6">Uitsplitsing per fase</h3>
 
+          {/* Staafdiagram met kleuren per fase */}
           <ResponsiveContainer width="100%" height={80}>
             <BarChart
               data={[{ name: 'CO₂-uitstoot per fase', ...perFase }]}
@@ -136,6 +149,7 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
             </BarChart>
           </ResponsiveContainer>
 
+          {/* Legenda bij de fasen */}
           <div className="mt-4 space-y-2 text-sm text-gray-700">
             {Object.entries(perFase).map(([fase, uitstoot], index) => (
               <div key={fase} className="flex items-center gap-2">
@@ -146,6 +160,7 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
             ))}
           </div>
 
+          {/* Toelichting per fase, indien aangeklikt */}
           {visibleInfo && (
             <div className="mt-4 text-sm text-gray-700 bg-gray-50 border p-4 rounded">
               <strong>Toelichting:</strong> {phaseExplanations(inferencesPerYear)[visibleInfo]}
@@ -153,8 +168,10 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
           )}
         </div>
 
+        {/* Uitleg-component met detailinformatie */}
         <Uitleg formData={formData} results={{ totaalKg, perFase, perFaseDetails }} />
 
+        {/* Impact per inferentie */}
         {inferencesPerYear > 0 && (
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-medium mb-4">Impact per inferentie</h3>
@@ -164,6 +181,7 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
           </div>
         )}
 
+        {/* Bronnen en toelichting */}
         <div className="text-xs text-gray-500">
           <p>* Embedded CO₂ van GPU’s: 150 kg CO₂e / 6 jaar (Luccioni et al 2022).</p>
           <p>* Embedded CO₂ server: 2500 kg CO₂e / 6 jaar (Luccioni et al 2022).</p>
@@ -172,6 +190,7 @@ const Results: React.FC<ResultsProps> = ({ formData, onBack }) => {
         </div>
       </div>
 
+      {/* Navigatie- en downloadknoppen */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-8 max-w-4xl mx-auto">
         <button
           onClick={onBack}

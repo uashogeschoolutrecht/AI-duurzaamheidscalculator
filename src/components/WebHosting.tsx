@@ -5,6 +5,7 @@ import datacenters from '../data/datacenters.json';
 import { berekenHostingUitstoot } from '../utils/berekeningen';
 import { WebHostingProps } from '../types';
 
+// Mapping van cloudprovider keys naar namen
 const providerMap: Record<string, string> = {
   azure: 'Microsoft',
   gcp: 'Google',
@@ -18,14 +19,17 @@ const providerMap: Record<string, string> = {
   dgr: 'Digital Realty'
 };
 
+// WebHosting: laat de gebruiker hostingdetails invullen en toont de geschatte CO₂-uitstoot
 const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack }) => {
   const [url, setUrl] = useState('');
   const [greenCheck, setGreenCheck] = useState<null | { green: boolean; hostedBy: string }>(null);
   const [uitstoot, setUitstoot] = useState({ operationeel: 0, productie: 0, totaal: 0 });
 
+  // Bepaal de geselecteerde provider en beschikbare datacenters
   const providerLabel = providerMap[data.cloudProvider || ''] || '';
   const beschikbareDatacenters = datacenters.filter(dc => dc['Bedrijf'] === providerLabel);
 
+  // Handler voor wijzigen van regio
   const wijzigRegio = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const geselecteerde = beschikbareDatacenters.find(dc => dc['Datacenter / regio'] === e.target.value);
     onUpdate({
@@ -35,6 +39,7 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
     });
   };
 
+  // Controleer of de opgegeven URL groen gehost wordt via The Green Web Foundation API
   const checkGreenHosting = async () => {
     if (!url) return;
     try {
@@ -46,8 +51,10 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
     }
   };
 
+  // Haal het aantal bezoeken op
   const bezoeken = parseInt(data.annualVisits || '0', 10);
 
+  // Bereken uitstoot telkens als relevante data verandert
   useEffect(() => {
     const nieuweUitstoot = berekenHostingUitstoot(
       bezoeken,
@@ -77,9 +84,12 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
               <span>Ja</span>
             </label>
             <label className="flex items-center space-x-3">
-              <input type="radio" name="isOnline" checked={data.isOnline === false}
+              <input
+                type="radio"
+                name="isOnline"
+                checked={data.isOnline === false}
                 className="h-4 w-4 text-indigo-600"
-                onChange={() =>
+                onChange={() => {
                   onUpdate({
                     isOnline: false,
                     cloudProvider: undefined,
@@ -88,8 +98,11 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
                     carbonIntensity: undefined,
                     providerInfoKnown: undefined,
                     hostingType: undefined
-                  })
-                } />
+                  });
+                  // Geef expliciet door dat er naar results moet worden gegaan
+                  setTimeout(() => onNext(false), 0);
+                }}
+              />
               <span>Nee</span>
             </label>
           </div>
@@ -125,7 +138,7 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
 
             {/* Bezoeken */}
             <div>
-              <div className="flex items-center gap-2 mb-2"> {/* Aangepast voor flexbox */}
+              <div className="flex items-center gap-2 mb-2">
                 <label htmlFor="annual-visits" className="block text-sm font-medium text-gray-700">Jaarlijkse bezoeken</label>
                 <InlineInfoButton text={`Dit veld is automatisch berekend op basis van:\n\n• Het aantal gebruikers per jaar\n• Het gemiddeld aantal sessies per gebruiker per jaar\n\nDe berekening gebeurt in de vorige stap (Apparaten) en kan daar aangepast worden.`} />
               </div>
@@ -249,7 +262,7 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
             {data.hostingType === 'local' && (
               <div className="space-y-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-2"> {/* Aangepast voor flexbox */}
+                  <div className="flex items-center gap-2 mb-2">
                     <label htmlFor="server-location" className="block text-sm font-medium text-gray-700">Serverlocatie</label>
                     <InlineInfoButton text="Dit veld kan gebruikt worden om de locatie van de server te specificeren, bijvoorbeeld 'Nederland' of 'Datacenter X'." />
                   </div>
@@ -261,7 +274,7 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
                   />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-2"> {/* Aangepast voor flexbox */}
+                  <div className="flex items-center gap-2 mb-2">
                     <label htmlFor="server-energy" className="block text-sm font-medium text-gray-700">Energieverbruik (kWh/jaar)</label>
                     <InlineInfoButton text="Voer hier het jaarlijkse energieverbruik van de server in kilowattuur (kWh)." />
                   </div>
@@ -277,7 +290,7 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
           </>
         )}
 
-        {/* Resultaat */}
+        {/* Resultaat: toont de berekende uitstoot als er bezoeken zijn */}
         {bezoeken > 0 && (
           <div className="p-4 bg-green-50 text-green-800 rounded-lg mt-4 text-sm space-y-1">
             <p><strong>Totale jaarlijkse uitstoot (operationeel):</strong> {uitstoot.operationeel.toFixed(2)} kg CO₂</p>
@@ -287,6 +300,7 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
         )}
       </div>
 
+      {/* Navigatieknoppen */}
       <div className="flex justify-between items-center mt-8">
         <button
           onClick={onBack}
@@ -295,7 +309,7 @@ const WebHosting: React.FC<WebHostingProps> = ({ data, onUpdate, onNext, onBack 
           Vorige
         </button>
         <button
-          onClick={onNext}
+          onClick={() => onNext()}
           className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
         >
           Volgende

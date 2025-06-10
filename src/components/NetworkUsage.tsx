@@ -4,10 +4,14 @@ import { berekenNetwerkUitstootPerInfferentie } from '../utils/berekeningen';
 import { NetworkUsageProps } from '../types';
 import InlineInfoButton from './InlineInfoButton';
 
+// NetworkUsage vraagt de gebruiker om de hoeveelheid data per inferentie
+// en toont de geschatte CO₂-uitstoot door netwerkgebruik.
 const NetworkUsage: React.FC<NetworkUsageProps> = ({ data, onUpdate, onNext, onBack }) => {
+  // Haal de ingevulde hoeveelheid en eenheid op, standaard naar 0 en 'KB'
   const hoeveelheid = parseFloat(data.dataHoeveelheid || '0');
   const eenheid = data.dataEenheid || 'KB';
 
+  // Bereken de uitstoot en het energieverbruik op basis van invoer
   const berekening = berekenNetwerkUitstootPerInfferentie(hoeveelheid, eenheid);
 
   return (
@@ -18,13 +22,14 @@ const NetworkUsage: React.FC<NetworkUsageProps> = ({ data, onUpdate, onNext, onB
 
       <div className="space-y-6">
         <div>
-          {/* Aangepast: label en InlineInfoButton in een flex-container */}
+          {/* Label en info-button naast elkaar */}
           <div className="flex items-center gap-2 mb-2">
             <label htmlFor="data-hoeveelheid" className="block text-sm font-medium text-gray-700">
               Gemiddelde hoeveelheid data per inferentie
             </label>
             <InlineInfoButton text={'Een gemiddelde inferentie (bijv. via ChatGPT) verbruikt ongeveer 8 kilobyte aan data. Dit is gebaseerd op tekstinvoer en -output van zo’n 2000 tekens, met een geschatte grootte van ~4 bytes per teken (Unicode). Deze schatting is afgeleid van een analyse over het dataverbruik van generatieve AI-tools. Bron: https://www.datasciencecentral.com/heres-how-much-data-gets-used-by-generative-ai-tools-for-each-request/'} />
           </div>
+          {/* Invoer voor hoeveelheid en eenheid */}
           <div className="flex space-x-4">
             <input
               id="data-hoeveelheid" // Toegankelijkheids-ID toegevoegd
@@ -50,6 +55,7 @@ const NetworkUsage: React.FC<NetworkUsageProps> = ({ data, onUpdate, onNext, onB
           </p>
         </div>
 
+        {/* Resultaatweergave */}
         <div className="p-4 bg-gray-50 rounded-lg">
           <h3 className="text-sm font-medium text-gray-700 mb-2">Geschatte impact per inferentie</h3>
           <p className="text-sm text-gray-600 mb-1">
@@ -64,6 +70,7 @@ const NetworkUsage: React.FC<NetworkUsageProps> = ({ data, onUpdate, onNext, onB
         </div>
       </div>
 
+      {/* Navigatieknoppen */}
       <div className="flex justify-between items-center mt-8">
         <button
           onClick={onBack}

@@ -4,6 +4,7 @@ import { berekenCo2UitstootInferentie } from '../utils/berekeningen';
 import { InferencePhaseProps } from '../types';
 import InlineInfoButton from './InlineInfoButton';
 
+// Mapping van provider keys naar namen
 const providerMap = {
   azure: 'Microsoft',
   gcp: 'Google',
@@ -17,6 +18,7 @@ const providerMap = {
   dgr: 'Digital Realty',
 };
 
+// Lijst van AI-taken met hun energieverbruik per inferentie (in kWh)
 const taken = [
   { naam: 'Tekstgeneratie', waarde: 'text-generation', energie: 0.047 / 1000 },
   { naam: 'Beeldgeneratie', waarde: 'image-generation', energie: 2.907 / 1000 },
@@ -31,13 +33,18 @@ const taken = [
 ];
 
 const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext, onBack }) => {
+  // Houdt bij welke velden zijn aangeraakt voor validatie
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
 
+  // Markeer een veld als aangeraakt
   const markTouched = (field: string) => setTouched(prev => ({ ...prev, [field]: true }));
 
+  // Bepaal de naam van de geselecteerde provider
   const datacenterLabel = providerMap[data.provider as keyof typeof providerMap] ?? '';
+  // Filter beschikbare datacenters op basis van provider
   const datacentersBeschikbaar = datacenters.filter(dc => dc['Bedrijf'] === datacenterLabel);
 
+  // Bereken de CO2-uitstoot op basis van ingevulde waarden
   const resultaten = berekenCo2UitstootInferentie(
     data.energyPerInference ?? 0,
     data.inferencesPerYear ?? 0,
@@ -46,6 +53,7 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
     data.inferenceDuration ?? 0
   );
 
+  // Update de regio en bijbehorende PUE/CO2-waarden bij selectie
   const updateRegion = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const gekozen = e.target.value;
     const match = datacentersBeschikbaar.find(dc => dc['Datacenter / regio'] === gekozen);
@@ -57,6 +65,7 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
     markTouched('region');
   };
 
+  // Controleer of alle verplichte velden zijn ingevuld
   const isValid =
     data.locatie &&
     (data.locatie === 'local' || (data.provider && data.region)) &&
@@ -70,7 +79,7 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
       <h2 className="text-2xl font-semibold text-gray-900">CO₂-uitstoot tijdens inferentie</h2>
 
       <div className="space-y-6">
-        {/* Locatie */}
+        {/* Locatie van inferentie (cloud of lokaal) */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Waar wordt inferentie uitgevoerd?
@@ -100,12 +109,14 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
               />
               Lokaal
             </label>
+            {/* Validatie: locatie verplicht */}
             {!data.locatie && touched.locatie && (
               <p className="text-sm text-red-600">Selecteer een locatie.</p>
             )}
           </div>
         </div>
 
+        {/* Cloudspecifieke velden: provider en regio */}
         {data.locatie === 'cloud' && (
           <>
             <div>
@@ -125,11 +136,13 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
                   <option key={key} value={key}>{label}</option>
                 ))}
               </select>
+              {/* Validatie: provider verplicht */}
               {!data.provider && touched.provider && (
                 <p className="text-sm text-red-600">Selecteer een provider.</p>
               )}
             </div>
 
+            {/* Regio/datacenter selectie */}
             {data.provider && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Regio / Datacenter</label>
@@ -147,6 +160,7 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
                     </option>
                   ))}
                 </select>
+                {/* Validatie: regio verplicht */}
                 {!data.region && touched.region && (
                   <p className="text-sm text-red-600">Selecteer een regio.</p>
                 )}
@@ -155,16 +169,16 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
           </>
         )}
 
-        {/* AI-taak */}
+        {/* AI-taak selectie */}
         <div>
-          <div className="flex items-center gap-2 mb-2"> {/* Aangepast: flex items-center en gap-2 */}
+          <div className="flex items-center gap-2 mb-2">
             <label htmlFor="ai-task" className="block text-sm font-medium text-gray-700">
               Voor welke AI-taak wordt de toepassing vooral gebruikt?
             </label>
             <InlineInfoButton text="Tekstgeneratie betekent dat het model vrij een tekst schrijft, bijvoorbeeld een alinea of verhaal. Vraag-beantwoording betekent dat het model antwoord geeft op een specifieke vraag op basis van bestaande informatie. De taak heeft invloed op het energieverbruik en de CO₂-uitstoot." />
           </div>
           <select
-            id="ai-task" // Voeg een ID toe voor accessibility
+            id="ai-task"
             className={`w-full p-3 border rounded-lg ${
               !data.task && touched.task ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -180,21 +194,22 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
               <option key={taak.waarde} value={taak.waarde}>{taak.naam}</option>
             ))}
           </select>
+          {/* Validatie: taak verplicht */}
           {!data.task && touched.task && (
             <p className="text-sm text-red-600">Selecteer een taak.</p>
           )}
         </div>
 
-        {/* Jaarverbruik */}
+        {/* Aantal inferenties per jaar */}
         <div>
-          <div className="flex items-center gap-2 mb-2"> {/* Aangepast: flex items-center en gap-2 */}
+          <div className="flex items-center gap-2 mb-2">
             <label htmlFor="inferences-per-year" className="block text-sm font-medium text-gray-700">
               Aantal inferenties per jaar
             </label>
             <InlineInfoButton text="Een inferentie is een modeluitvoer, zoals een antwoord of gegenereerde tekst. Bijvoorbeeld: 1 gebruiker die 10 vragen stelt aan een AI-chatbot, heeft 10 inferenties gedaan." />
           </div>
           <input
-            id="inferences-per-year" // Voeg een ID toe voor accessibility
+            id="inferences-per-year"
             type="number"
             className={`w-full p-3 border rounded-lg ${
               !data.inferencesPerYear && touched.inferencesPerYear ? 'border-red-500' : 'border-gray-300'
@@ -206,17 +221,19 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
             }}
             placeholder="bijv. 10.000"
           />
+          {/* Validatie: verplicht veld */}
           {!data.inferencesPerYear && touched.inferencesPerYear && (
             <p className="text-sm text-red-600">Vul het aantal inferenties per jaar in.</p>
           )}
         </div>
 
+        {/* Energieverbruik per inferentie */}
         <div>
           <label htmlFor="energy-per-inference" className="block text-sm font-medium text-gray-700 mb-2">
             Energieverbruik per inferentie (kWh)
           </label>
           <input
-            id="energy-per-inference" // Voeg een ID toe voor accessibility
+            id="energy-per-inference"
             type="number"
             className={`w-full p-3 border rounded-lg ${
               !data.energyPerInference && touched.energyPerInference ? 'border-red-500' : 'border-gray-300'
@@ -227,20 +244,22 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
               markTouched('energyPerInference');
             }}
           />
+          {/* Validatie: verplicht veld */}
           {!data.energyPerInference && touched.energyPerInference && (
             <p className="text-sm text-red-600">Vul het energieverbruik in.</p>
           )}
         </div>
 
+        {/* Gemiddelde duur per inferentie */}
         <div>
-          <div className="flex items-center gap-2 mb-2"> {/* Aangepast: flex items-center en gap-2 */}
+          <div className="flex items-center gap-2 mb-2">
             <label htmlFor="inference-duration" className="block text-sm font-medium text-gray-700">
               Gemiddelde duur per inferentie (seconden)
             </label>
             <InlineInfoButton text='De gemiddelde "duur per inferentie" is ongeveer 18.41 seconden, gebaseerd op de Artificial Analysis LLM Performance Leaderboard op Hugging Face. Geraadpleegd op 22-5-2025' />
           </div>
           <input
-            id="inference-duration" // Voeg een ID toe voor accessibility
+            id="inference-duration"
             type="number"
             className={`w-full p-3 border rounded-lg ${
               !data.inferenceDuration && touched.inferenceDuration ? 'border-red-500' : 'border-gray-300'
@@ -252,12 +271,14 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
             }}
             placeholder="Bijv. 18"
           />
+          {/* Validatie: verplicht veld */}
           {!data.inferenceDuration && touched.inferenceDuration && (
             <p className="text-sm text-red-600">Vul de duur per inferentie in.</p>
           )}
         </div>
       </div>
 
+      {/* Resultaten tonen als er voldoende data is */}
       {(data.inferencesPerYear && data.inferenceDuration) && (
         <div className="bg-gray-50 p-4 rounded-lg mt-6 text-sm text-gray-700 space-y-1">
           <p><strong>Operationeel:</strong> {resultaten.operationeelKg.toFixed(2)} kg CO₂e/jaar</p>
@@ -267,6 +288,7 @@ const InferencePhase: React.FC<InferencePhaseProps> = ({ data, onUpdate, onNext,
         </div>
       )}
 
+      {/* Navigatieknoppen */}
       <div className="flex justify-between items-center mt-8">
         <button
           onClick={onBack}
