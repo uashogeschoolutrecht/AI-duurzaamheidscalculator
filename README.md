@@ -53,6 +53,7 @@ De tool rekent met de volgende vijf fasen:
 ## Bronnen
 
 - Luccioni et al. (2022)
+- Luccioni et al. (2024)
 - Malmodin & Lundén (2018)
 - Berthelot et al. (2024)
 - IEA (2023)
