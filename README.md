@@ -51,14 +51,19 @@ De tool rekent met de volgende vijf fasen:
 - `src/types.ts` – TypeScript types voor formulierdata
 
 ## Bronnen
+- Luccioni, A. S., Viguier, S., & Ligozat, A. L. (2023). Estimating  the carbon footprint of bloom, a 176b parameter language model. *Journal of Machine Learning Research*, *24*(253), 1-15. https://www.jmlr.org/papers/v24/23-0069.html
 
-- Luccioni et al. (2022)
-- Luccioni et al. (2024)
-- Malmodin & Lundén (2018)
-- Berthelot et al. (2024)
-- IEA (2023)
-- Farfan & Lohrmann (2023)
-- Websitecarbon.com
+- Luccioni, A. S., Jernite, Y., & Strubell, E. (2024). Power Hungry Processing: Watts Driving the Cost of AI Deployment? *The 2024 ACM Conference on Fairness, Accountability, and Transparency*, 85-99. https://doi.org/10.1145/3630106.3658542
+
+- Malmodin, J., & Lundén, D. (2018). The energy and carbon footprint of the global ICT and E&M sectors 2010–2015. *Sustainability*, *10*(9), 3027. https://doi.org/10.3390/su10093027
+
+- Berthelot, A., Caron, E., Jay, M., & Lefèvre, L. (2024). Estimating the environmental impact of Generative-AI services using an LCA-based methodology. *Procedia CIRP*, *122*, 707-712. https://doi.org/10.1016/j.procir.2024.01.098
+
+- IEA (2024), *CO2 Emissions in 2023*, IEA, Paris https://www.iea.org/reports/co2-emissions-in-2023, Licence: CC BY 4.0
+
+- Farfan, J., & Lohrmann, A. (2023). Gone with the clouds: Estimating  the electricity and water footprint of digital data services in Europe. *Energy Conversion and Management*, *290*, 117225. https://doi.org/10.1016/j.enconman.2023.117225
+
+- [Websitecarbon.com](https://www.websitecarbon.com/)
 
 ## Disclaimer
 
